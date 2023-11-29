@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 contract Audio {
     address public owner;
     mapping(address => bool) public hasAccess;
-    mapping(address => bool) public hasListened;
+    mapping(address => mapping(uint256 => bool)) public hasListened;
     mapping(uint256 => string) public audioUrls; // Store URLs for each audio
 
     event PaymentReceived(address indexed payer, uint256 amount);
@@ -44,7 +44,6 @@ contract Audio {
     receive() external payable {
         emit PaymentReceived(msg.sender, msg.value);
         hasAccess[msg.sender] = true;
-        hasListened[msg.sender] = false; // Initialize the listened state to false
     }
 
     // Function to get the URL of a specific audio
@@ -54,20 +53,28 @@ contract Audio {
         return audioUrls[audioId];
     }
 
-    function listenToAudio(uint256 audioId) external payable requirePayment {
+    function payToListen() external payable requirePayment {
+        emit PaymentReceived(msg.sender, msg.value);
+        hasAccess[msg.sender] = true;
+        hasListened[msg.sender][1] = false; // Initialize the listened state to false for audioId 1
+        hasListened[msg.sender][2] = false; // Initialize the listened state to false for audioId 2
+        hasListened[msg.sender][3] = false; // Initialize the listened state to false for audioId 3
+        hasListened[msg.sender][4] = false; // Initialize the listened state to false for audioId 4
+    }
+
+    function listenToAudio(uint256 audioId) external  {
         require(hasAccess[msg.sender], "You need to pay to access the audio.");
         require(
-            !hasListened[msg.sender],
+            !hasListened[msg.sender][audioId],
             "You have already listened to the audio."
         );
 
         // Logic to play the audio goes here
-        //string memory url = audioUrls[audioId];
 
         // Additional logic to handle the audio URL (e.g., emit an event)
         emit AudioPlayed(msg.sender);
 
-        hasListened[msg.sender] = true;
+        hasListened[msg.sender][audioId] = true; // Set the listened state to true after listening
     }
 
     function grantAccess(address user) external onlyOwner {

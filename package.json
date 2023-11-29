@@ -7,5 +7,8 @@
     "ethereum-waffle": "^3.0.0",
     "ethers": "^5.0.0",
     "hardhat": "^2.19.1"
+  },
+  "dependencies": {
+    "web3": "^4.2.2"
   }
 }
