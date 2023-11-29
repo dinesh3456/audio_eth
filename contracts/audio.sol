@@ -53,6 +53,53 @@ contract Audio {
         return audioUrls[audioId];
     }
 
+// Function to fetch the audio URL from the smart contract
+async function getAudioUrlFromContract(audioId) {
+  try {
+    // Initialize the contract with the ABI and contract address
+    const audioContract = new web3.eth.Contract(
+      window.ListenAudio.abi,
+      window.ListenAudio.address
+    );
+
+    // Call the smart contract function to get the audio URL
+    const audioUrl = await audioContract.methods.getAudioUrl(audioId).call();
+
+    return audioUrl;
+  } catch (error) {
+    console.error('Error fetching audio URL:', error);
+    return null;
+  }
+}
+
+// Function to calculate the duration of the audio
+async function getAudioDuration(audioId) {
+  // Fetch the audio URL from the smart contract
+  const audioUrl = await getAudioUrlFromContract(audioId);
+
+  if (!audioUrl) {
+    console.log('Unable to get audio URL.');
+    return;
+  }
+
+  // Create an Audio element to calculate the duration
+  const audio = new Audio(audioUrl);
+
+  audio.addEventListener('loadedmetadata', () => {
+    const duration = audio.duration;
+    console.log(`Audio duration for audioId ${audioId}: ${duration} seconds`);
+    // Use the duration in your application logic
+  });
+
+  // Handle the case where the audio cannot be loaded
+  audio.addEventListener('error', (error) => {
+    console.error('Error loading audio:', error);
+  });
+
+  // Trigger loading of the audio file
+  audio.load();
+}
+
     function payToListen() external payable requirePayment {
         emit PaymentReceived(msg.sender, msg.value);
         hasAccess[msg.sender] = true;
@@ -63,7 +110,7 @@ contract Audio {
     }
 
     function listenToAudio(uint256 audioId) external {
-        require(hasAccess[msg.sender], "You need to pay to access the audio.");
+        //require(hasAccess[msg.sender], "You need to pay to access the audio.");
         require(
             !hasListened[msg.sender][audioId],
             "You have already listened to the audio."

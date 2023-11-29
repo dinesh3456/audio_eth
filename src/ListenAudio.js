@@ -182,5 +182,5 @@ window.ListenAudio = {
       type: "receive",
     },
   ],
-  address: "0x123560f3dBE47DF7c084B598099eB098faa16eBB",
+  address: "0x7c8E627F052545147977aDC28431F6BDb5d33915",
 };

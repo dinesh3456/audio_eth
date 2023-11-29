@@ -34,6 +34,57 @@ async function connectWallet() {
   }
 }
 
+// Function to fetch the audio URL from the smart contract
+async function getAudioUrlFromContract(audioId) {
+  try {
+    // Initialize the contract with the ABI and contract address
+    audioContract = new web3.eth.Contract(
+      window.ListenAudio.abi,
+      window.ListenAudio.address
+    );
+
+    // Call the smart contract function to get the audio URL
+    const audioUrl = await audioContract.methods.getAudioUrl(audioId).call();
+
+    return audioUrl;
+  } catch (error) {
+    console.error("Error fetching audio URL:", error);
+    return null;
+  }
+}
+
+// Function to calculate the duration of the audio
+async function getAudioDuration(audioId) {
+  // Fetch the audio URL from the smart contract
+  const audioUrl = await getAudioUrlFromContract(audioId);
+
+  if (!audioUrl) {
+    console.log("Unable to get audio URL.");
+    return;
+  }
+
+  // Create an Audio element to calculate the duration
+  const audio = new Audio(audioUrl);
+
+  audio.addEventListener("loadedmetadata", () => {
+    const duration = audio.duration;
+    console.log(`Audio duration for audioId ${audioId}: ${duration} seconds`);
+    // Use the duration in your application logic
+  });
+
+  // Handle the case where the audio cannot be loaded
+  audio.addEventListener("error", (error) => {
+    console.error("Error loading audio:", error);
+  });
+
+  // Trigger loading of the audio file
+  audio.load();
+}
+
+// Example usage
+const audioIdToCheck = 1;
+getAudioDuration(audioIdToCheck);
+
 // Function to handle the click event on the "Pay with ETH" button
 async function payWithETH(audioId) {
   // Check if the user is connected to Metamask
@@ -56,7 +107,7 @@ async function payWithETH(audioId) {
     });
 
     // Access granted, now listen to the audio
-    await audioContract.methods.listenToAudio(audioId).call();
+    const audioUrl = await getAudioUrlFromContract(audioId);
     console.log("Transaction complete");
 
     // Check the payment status after the transaction
@@ -82,7 +133,7 @@ async function payWithETH(audioId) {
 }
 
 // Function to enable audio controls after a successful payment
-function enableAudioControls(audioId) {
+async function enableAudioControls(audioId) {
   console.log("Enabling audio controls for audioId:", audioId);
 
   const audioElement = document.getElementById(`audio-${audioId}`);
@@ -92,8 +143,36 @@ function enableAudioControls(audioId) {
   if (audioElement && payButton) {
     console.log("Updating audio controls");
 
-    audioElement.controls = true;
-    payButton.disabled = true;
+    // Check the payment status after the transaction
+    const hasAccess = await audioContract.methods
+      .hasAccess(window.ethereum.selectedAddress)
+      .call();
+
+    // Check if the user has already listened to the audio
+    const hasListened =
+      audioElement.getAttribute("data-has-listened") === "true";
+
+    if (hasAccess && !hasListened) {
+      // If the user has access and has not listened, show the audio controls
+      audioElement.controls = true;
+      payButton.textContent = "Paid"; // Optionally, update the pay button text
+      payButton.disabled = true;
+
+      // Set the "data-has-listened" attribute to true
+      audioElement.setAttribute("data-has-listened", "true");
+
+      // Listen for the "ended" event to hide controls after completion
+      audioElement.addEventListener("ended", () => {
+        audioElement.controls = false;
+        payButton.textContent = "Pay to Listen Again";
+        payButton.disabled = false;
+      });
+    } else {
+      // If the user does not have access or has already listened, hide the audio controls
+      audioElement.controls = false;
+      payButton.textContent = "Pay to listen again";
+      payButton.disabled = false;
+    }
   } else {
     console.error("Audio controls not found for audioId:", audioId);
   }
