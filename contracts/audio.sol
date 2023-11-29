@@ -62,7 +62,7 @@ contract Audio {
         hasListened[msg.sender][4] = false; // Initialize the listened state to false for audioId 4
     }
 
-    function listenToAudio(uint256 audioId) external  {
+    function listenToAudio(uint256 audioId) external {
         require(hasAccess[msg.sender], "You need to pay to access the audio.");
         require(
             !hasListened[msg.sender][audioId],

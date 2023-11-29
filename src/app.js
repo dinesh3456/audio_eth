@@ -48,7 +48,6 @@ async function payWithETH(audioId) {
       window.ListenAudio.abi,
       window.ListenAudio.address
     );
-    console.log(window.ListenAudio.abi, window.ListenAudio.address);
 
     // Make the payment to the smart contract
     await audioContract.methods.payToListen().send({
@@ -57,17 +56,23 @@ async function payWithETH(audioId) {
     });
 
     // Access granted, now listen to the audio
-    if (audioContract && audioContract.methods) {
-      await audioContract.methods.listenToAudio(audioId).send({
-        from: window.ethereum.selectedAddress,
-      });
-      console.log("Transaction complete");
+    await audioContract.methods.listenToAudio(audioId).call();
+    console.log("Transaction complete");
 
+    // Check the payment status after the transaction
+    const hasAccess = await audioContract.methods
+      .hasAccess(window.ethereum.selectedAddress)
+      .call();
+
+    if (hasAccess) {
       // Payment successful, update UI or perform other tasks
       updateUI();
       alert("Payment successful! Enjoy the audio.");
+
+      // Dynamically update the audio controls
+      enableAudioControls(audioId);
     } else {
-      console.error("Contract methods not available.");
+      console.error("Payment not successful.");
       alert("Payment failed. Please try again.");
     }
   } catch (error) {
@@ -76,3 +81,20 @@ async function payWithETH(audioId) {
   }
 }
 
+// Function to enable audio controls after a successful payment
+function enableAudioControls(audioId) {
+  console.log("Enabling audio controls for audioId:", audioId);
+
+  const audioElement = document.getElementById(`audio-${audioId}`);
+  const payButton = document.getElementById(`pay-button-${audioId}`);
+
+  // Update the audio controls and pay button
+  if (audioElement && payButton) {
+    console.log("Updating audio controls");
+
+    audioElement.controls = true;
+    payButton.disabled = true;
+  } else {
+    console.error("Audio controls not found for audioId:", audioId);
+  }
+}
