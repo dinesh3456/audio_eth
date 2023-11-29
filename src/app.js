@@ -37,8 +37,9 @@ async function connectWallet() {
 // Function to fetch the audio URL from the smart contract
 async function getAudioUrlFromContract(audioId) {
   try {
+    web3 = new Web3(window.ethereum);
     // Initialize the contract with the ABI and contract address
-    audioContract = new web3.eth.Contract(
+    const audioContract = new web3.eth.Contract(
       window.ListenAudio.abi,
       window.ListenAudio.address
     );
@@ -70,6 +71,15 @@ async function getAudioDuration(audioId) {
     const duration = audio.duration;
     console.log(`Audio duration for audioId ${audioId}: ${duration} seconds`);
     // Use the duration in your application logic
+
+    // Add an event listener for the "ended" event
+    audio.addEventListener("ended", () => {
+      console.log(`Audio playback ended for audioId ${audioId}`);
+      enableAudioControls(audioId);
+    });
+
+    // Trigger loading of the audio file
+    audio.play();
   });
 
   // Handle the case where the audio cannot be loaded
@@ -131,9 +141,8 @@ async function payWithETH(audioId) {
     alert("Payment failed. Please try again.");
   }
 }
-
 // Function to enable audio controls after a successful payment
-async function enableAudioControls(audioId) {
+async function enableAudioControls(audioId, audioUrl) {
   console.log("Enabling audio controls for audioId:", audioId);
 
   const audioElement = document.getElementById(`audio-${audioId}`);
@@ -152,23 +161,25 @@ async function enableAudioControls(audioId) {
     const hasListened =
       audioElement.getAttribute("data-has-listened") === "true";
 
-    if (hasAccess && !hasListened) {
-      // If the user has access and has not listened, show the audio controls
+    if (hasAccess) {
+      // If the user has access, show the audio controls
       audioElement.controls = true;
       payButton.textContent = "Paid"; // Optionally, update the pay button text
       payButton.disabled = true;
 
-      // Set the "data-has-listened" attribute to true
-      audioElement.setAttribute("data-has-listened", "true");
+      if (!hasListened) {
+        // If the user has not listened, set the "data-has-listened" attribute to true
+        audioElement.setAttribute("data-has-listened", "true");
 
-      // Listen for the "ended" event to hide controls after completion
-      audioElement.addEventListener("ended", () => {
-        audioElement.controls = false;
-        payButton.textContent = "Pay to Listen Again";
-        payButton.disabled = false;
-      });
+        // Add event listener for the "ended" event to hide controls after audio ends
+        audioElement.addEventListener("ended", () => {
+          audioElement.controls = false;
+          payButton.textContent = "Pay to listen again";
+          payButton.disabled = false;
+        });
+      }
     } else {
-      // If the user does not have access or has already listened, hide the audio controls
+      // If the user does not have access, hide the audio controls
       audioElement.controls = false;
       payButton.textContent = "Pay to listen again";
       payButton.disabled = false;
