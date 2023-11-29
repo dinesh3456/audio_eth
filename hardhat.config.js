@@ -1,4 +1,26 @@
-/** @type import('hardhat/config').HardhatUserConfig */
+require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-ethers");
+const fs = require("fs");
+require("dotenv").config();
+
 module.exports = {
-  solidity: "0.8.19",
+  defaultNetwork: "hardhat",
+  networks: {
+    hardhat: {
+      chainId: 1337,
+    },
+    goerli: {
+      url: process.env.API_URL,
+      accounts: [process.env.PRIVATE_KEY],
+    },
+  },
+  solidity: {
+    version: "0.8.20",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
+  },
 };

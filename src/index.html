@@ -1,21 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Player</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Audio ETH</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="brand">Audio ETH</div>
+      <button class="connect-button" id="connectButton">Connect</button>
+    </nav>
 
-<div class="audio-container">
-    <h1>Audio Player</h1>
-    <audio controls>
-        <source src="path_to_audio_file.mp3" type="audio/mp3">
-        Your browser does not support the audio tag.
-    </audio>
-    <button id="payButton">Pay with ETH</button>
-</div>
+    <div class="audio-container">
+      <h1>Audio Player</h1>
 
-</body>
+      <div class="audio-row">
+        <div class="audio-item">
+          <h3>Audio Player 1</h3>
+          <audio controls>
+            <source src="path_to_audio_file1.mp3" type="audio/mp3" />
+            Your browser does not support the audio tag.
+          </audio>
+          <button class="pay-button">Pay with ETH</button>
+        </div>
+
+        <div class="audio-item">
+          <h3>Audio Player 2</h3>
+          <audio controls>
+            <source src="path_to_audio_file2.mp3" type="audio/mp3" />
+            Your browser does not support the audio tag.
+          </audio>
+          <button class="pay-button">Pay with ETH</button>
+        </div>
+
+        <div class="audio-item">
+          <h3>Audio Player 3</h3>
+          <audio controls>
+            <source src="path_to_audio_file3.mp3" type="audio/mp3" />
+            Your browser does not support the audio tag.
+          </audio>
+          <button class="pay-button">Pay with ETH</button>
+        </div>
+
+        <div class="audio-item">
+          <h3>Audio Player 4</h3>
+          <audio controls>
+            <source src="path_to_audio_file4.mp3" type="audio/mp3" />
+            Your browser does not support the audio tag.
+          </audio>
+          <button class="pay-button">Pay with ETH</button>
+        </div>
+      </div>
+
+      <!-- Repeat the above structure for additional rows if needed -->
+    </div>
+  </body>
 </html>
