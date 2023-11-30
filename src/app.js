@@ -91,10 +91,6 @@ async function getAudioDuration(audioId) {
   audio.load();
 }
 
-// Example usage
-const audioIdToCheck = 1;
-getAudioDuration(audioIdToCheck);
-
 // Function to handle the click event on the "Pay with ETH" button
 async function payWithETH(audioId) {
   // Check if the user is connected to Metamask
