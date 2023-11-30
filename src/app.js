@@ -131,7 +131,11 @@ async function payWithETH(audioId) {
       alert("Payment successful! Enjoy the audio.");
 
       // Dynamically update the audio controls
-      enableAudioControls(audioId);
+      enableAudioControls(audioId, audioUrl);
+
+      // Start audio playback after user action
+      const audioElement = document.getElementById(`audio-${audioId}`);
+      audioElement.play();
     } else {
       console.error("Payment not successful.");
       alert("Payment failed. Please try again.");
@@ -141,6 +145,7 @@ async function payWithETH(audioId) {
     alert("Payment failed. Please try again.");
   }
 }
+
 // Function to enable audio controls after a successful payment
 async function enableAudioControls(audioId, audioUrl) {
   console.log("Enabling audio controls for audioId:", audioId);
